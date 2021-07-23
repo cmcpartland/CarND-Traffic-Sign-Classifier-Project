@@ -6,6 +6,7 @@ In this project, a CNN is used to classify traffic sign images from the [German 
 
 
 ### Data Set Summary & Exploration
+---
 1. For the traffic sign dataset, I used Python to create a basic summary of the data in the
 set. After loading each set into a list, I found the number of examples in each set to be:  
  * 34799 training examples
@@ -30,6 +31,7 @@ represented 5 times more than the least represented one.
 ![Test set](test.png)
 
 ### Design and Test a Model Architecture
+---
 1. The data was pre-processed by simply normalizing the RGB values of each image so
 that the values had zero mean and zero variance. The values are normalized so that the
 optimizer can more easily arrive at the correct weights.  
@@ -65,6 +67,7 @@ Validation accuracy = 94.1%
 Test accuracy = 92.5%  
 
 ### Test a Model on New Images
+---
 1. The five German traffic sign images I used are:  
 ![Testing images](new_images.png)
 
