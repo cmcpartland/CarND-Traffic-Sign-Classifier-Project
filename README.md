@@ -1,58 +1,82 @@
-## Project: Build a Traffic Sign Recognition Program
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
+## Traffic Sign Recognition Program
 
 Overview
 ---
-In this project, you will use what you've learned about deep neural networks and convolutional neural networks to classify traffic signs. You will train and validate a model so it can classify traffic sign images using the [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset). After the model is trained, you will then try out your model on images of German traffic signs that you find on the web.
+In this project, a CNN is used to classify traffic sign images from the [German Traffic Sign Dataset](http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset). 
 
-We have included an Ipython notebook that contains further instructions 
-and starter code. Be sure to download the [Ipython notebook](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/Traffic_Sign_Classifier.ipynb). 
 
-We also want you to create a detailed writeup of the project. Check out the [writeup template](https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup. The writeup can be either a markdown file or a pdf document.
+### Data Set Summary & Exploration
+1. For the traffic sign dataset, I used Python to create a basic summary of the data in the
+set. After loading each set into a list, I found the number of examples in each set to be:  
+ * 34799 training examples
+ * 4410 validation examples
+ * 12630 training examples  
+ 
+The shape of each example image is 32x32 pixels, and since it is an RGB image the size
+is actually 32x32x3.
+The number of unique classes was discovered to be 43. This was done by finding the
+number of unique elements in the training labels list.
 
-To meet specifications, the project will require submitting three files: 
-* the Ipython notebook with the code
-* the code exported as an html file
-* a writeup report either as a markdown or pdf file 
+2. The dataset was explored to see the distribution of repeat examples in each set. The
+number of repeat examples was placed on a bar graph, and it can be visibly confirmed
+that each set is similar in its image class distribution. It also becomes clear that the
+examples are not evenly distributed among the classes, with some classes being
+represented 5 times more than the least represented one.  
 
-Creating a Great Writeup
----
-A great writeup should include the [rubric points](https://review.udacity.com/#!/rubrics/481/view) as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
+![Training set](Training.png)
 
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
+![Validation set](Validation.png)
 
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
+![Test set](test.png)
 
-The Project
----
-The goals / steps of this project are the following:
-* Load the data set
-* Explore, summarize and visualize the data set
-* Design, train and test a model architecture
-* Use the model to make predictions on new images
-* Analyze the softmax probabilities of the new images
-* Summarize the results with a written report
+### Design and Test a Model Architecture
+1. The data was pre-processed by simply normalizing the RGB values of each image so
+that the values had zero mean and zero variance. The values are normalized so that the
+optimizer can more easily arrive at the correct weights.  
 
-### Dependencies
-This lab requires:
+2. My model consists of convolutions, max pooling, fully connected layers, dropout
+layers, and ReLUs in the following order: 
+![CNN](cnn_data.png)
 
-* [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit)
+3. The model was trained using the layers above with TensorFlow’s AdamOptimizer with
+a learning rate of 0.0008. The data was fed into the model over 20 epochs with a batch
+size of 128.  
 
-The lab environment can be created with CarND Term1 Starter Kit. Click [here](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) for the details.
+The derivation of the model was an iterative process. I started with the LeNet model
+since it is already set up to be trained on 32x32x3 images, but the accuracy was too low
+using just the two convolutional layers so a third one was added.
+Next, the model was overfitting to the training data very quickly (reaching +90%
+accuracy after 2 epochs), so a dropout layer with keep_probability = 0.5 was added
+between the first and second fully connected layers.  
 
-### Dataset and Repository
+The validation accuracy increased with this added dropout layer, but the model was still
+overfitting to the training data was hitting close to 98% accuracy on the training set
+after around 14 epochs while the validation accuracy was at around 93%. The validation
+accuracy would also fluctuate above and below 93%.  
 
-1. Download the data set. The classroom has a link to the data set in the "Project Instructions" content. This is a pickled dataset in which we've already resized the images to 32x32. It contains a training, validation and test set.
-2. Clone the project, which contains the Ipython notebook and the writeup template.
-```sh
-git clone https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project
-cd CarND-Traffic-Sign-Classifier-Project
-jupyter notebook Traffic_Sign_Classifier.ipynb
-```
+Finally, to reduce overfit and reduce fluctuating accuracy, I added another dropout layer
+between the second and third fully connected layers, adjusted their keep probabilities,
+and lowered the learning rate from 0.0008 to 0.0006.
+After the adjustments, the increase in validation accuracy was steady and stable with
+each epoch and it eclipsed 93% accuracy.  
 
-### Requirements for Submission
-Follow the instructions in the `Traffic_Sign_Classifier.ipynb` notebook and write the project report using the writeup template as a guide, `writeup_template.md`. Submit the project code and writeup document.
+My final accuracy results are as follows:  
+Validation accuracy = 94.1%  
+Test accuracy = 92.5%  
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+### Test a Model on New Images
+1. The five German traffic sign images I used are:  
+![Testing images](new_images.png)
+
+The results were very successful in classifying the new images with an accuracy of 100%.
+This is obviously higher than the test set accuracy, but for such a small data set this is
+always a possibility. 
+
+Interestingly enough, the model was very confident about all predictions except for the
+stop sign image. For the 30kph, the left turn head, and the yield sign images, the
+confidence was 100% when rounded to the nearest 3rd decimal place. The confidence
+for the ‘no passing’ sign was also very high, with a 95% confidence for the correct
+prediction. However, the confidence for the correct prediction for the stop sign is only
+73%.
+
 
